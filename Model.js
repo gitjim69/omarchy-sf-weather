@@ -201,13 +201,42 @@ function detailLine(snapshot) {
   return parts.join(", ")
 }
 
-function notificationBody(snapshot, now) {
-  var summary = detailLine(snapshot)
+function heroLine(snapshot) {
+  if (!snapshot || !snapshot.temp) return "No weather data yet"
+  var parts = []
+  if (snapshot.icon) parts.push(snapshot.icon)
+  parts.push(snapshot.temp + "°")
+  if (snapshot.condition) parts.push(snapshot.condition)
+  return parts.join("  ")
+}
+
+function metaLine(snapshot) {
+  if (!snapshot || !snapshot.temp) return "Middle-click the widget to refresh."
+  var parts = []
+  if (snapshot.feels) parts.push("feels " + snapshot.feels + "°")
+  if (snapshot.wind) parts.push("wind " + snapshot.wind + " mph")
+  if (snapshot.humidity) parts.push("humidity " + snapshot.humidity + "%")
+  if (snapshot.high || snapshot.low) {
+    var range = []
+    if (snapshot.high) range.push("high " + snapshot.high + "°")
+    if (snapshot.low) range.push("low " + snapshot.low + "°")
+    parts.push(range.join(" / "))
+  }
+  return parts.join(", ")
+}
+
+function hourlyTableRows(snapshot, now) {
   var hours = upcomingHourly(snapshot, now)
-  if (!hours.length) return summary
-  var lines = [summary]
-  for (var i = 0; i < hours.length; i++) lines.push(formatHourlyLine(hours[i]))
-  return lines.join("\n")
+  var rows = []
+  for (var i = 0; i < hours.length; i++) {
+    rows.push({
+      hour: formatHourLabel(hours[i].time),
+      temp: hours[i].temp + "°",
+      chance: hours[i].chance + "%",
+      precip: hours[i].precip + "\""
+    })
+  }
+  return rows
 }
 
 if (typeof module !== "undefined") {
@@ -231,6 +260,8 @@ if (typeof module !== "undefined") {
     upcomingHourly: upcomingHourly,
     barLabel: barLabel,
     detailLine: detailLine,
-    notificationBody: notificationBody
+    heroLine: heroLine,
+    metaLine: metaLine,
+    hourlyTableRows: hourlyTableRows
   }
 }

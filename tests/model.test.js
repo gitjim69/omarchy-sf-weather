@@ -97,13 +97,24 @@ test("upcomingHourly crosses midnight when the evening is late", () => {
   assert.equal(Model.formatHourlyLine(hours[1]), "12 AM  46°  5%  0.00\"")
 })
 
-test("notificationBody keeps the summary first, then hourly lines", () => {
+test("heroLine and metaLine split the header from the muted details", () => {
   const snapshot = Model.parseForecast(JSON.stringify(fixture))
-  const body = Model.notificationBody(snapshot, "2026-11-20T06:30")
-  const lines = body.split("\n")
-  assert.equal(lines[0], Model.detailLine(snapshot))
-  assert.equal(lines.length, 13)
-  assert.equal(lines[1], "7 AM  50°  10%  0.00\"")
-  assert.equal(lines[12], "6 PM  49°  20%  0.00\"")
-  assert.equal(lines.length, 13)
+  assert.equal(Model.heroLine(snapshot), snapshot.icon + "  49°  Overcast")
+  assert.equal(Model.metaLine(snapshot), "feels 46°, wind 7 mph, humidity 91%, high 55° / low 45°")
+  assert.equal(Model.heroLine(null), "No weather data yet")
+  assert.match(Model.metaLine(null), /refresh/)
+})
+
+test("hourlyTableRows is a 12-row aligned table starting at the upcoming hour", () => {
+  const snapshot = Model.parseForecast(JSON.stringify(fixture))
+  const rows = Model.hourlyTableRows(snapshot, "2026-11-20T06:30")
+  assert.equal(rows.length, 12)
+  assert.deepEqual(rows[0], { hour: "7 AM", temp: "50°", chance: "10%", precip: "0.00\"" })
+  assert.deepEqual(rows[5], { hour: "12 PM", temp: "55°", chance: "25%", precip: "0.00\"" })
+  assert.deepEqual(rows[7], { hour: "2 PM", temp: "53°", chance: "40%", precip: "0.12\"" })
+  assert.deepEqual(rows[11], { hour: "6 PM", temp: "49°", chance: "20%", precip: "0.00\"" })
+  const late = Model.hourlyTableRows(snapshot, "2026-11-20T22:30")
+  assert.equal(late[0].hour, "11 PM")
+  assert.equal(late[1].hour, "12 AM")
+  assert.equal(late[11].hour, "10 AM")
 })

@@ -18,6 +18,38 @@ BarWidget {
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
 
+  // Shape contract for shell.summon/hide/toggle: Bar.findPanelWidget
+  // requires open/close/opened on the bar-widget root.
+  readonly property bool opened: panelLoader.item ? panelLoader.item.opened === true : false
+
+  function open() {
+    if (panelLoader.item) panelLoader.item.open()
+  }
+
+  function close() {
+    if (panelLoader.item) panelLoader.item.close()
+  }
+
+  function togglePanel() {
+    if (panelLoader.item) panelLoader.item.toggle()
+  }
+
+  readonly property bool popoutSwitchClosing: panelLoader.item ? panelLoader.item.popoutSwitchClosing === true : false
+
+  function closeForPopoutSwitch() {
+    if (panelLoader.item) panelLoader.item.closeForPopoutSwitch()
+  }
+
+  function injectPanel() {
+    var target = panelLoader.item
+    if (!target) return
+    if ("bar" in target) target.bar = root.bar
+    if ("settings" in target) target.settings = root.settings
+    if ("anchorItem" in target) target.anchorItem = button
+    if ("hostWidget" in target) target.hostWidget = root
+    if ("snapshot" in target) target.snapshot = root.snapshot
+  }
+
   function refresh() {
     fetchRetries = 0
     startFetch()
@@ -34,14 +66,19 @@ BarWidget {
     retryTimer.restart()
   }
 
-  function notify() {
-    if (notifyProc.running) notifyProc.running = false
-    var glyph = snapshot && snapshot.icon ? snapshot.icon : ""
-    var args = ["omarchy-notification-send", "--app-name", "SF Weather"]
-    if (glyph) args = args.concat(["-g", glyph])
-    args = args.concat(["SF Weather", Model.notificationBody(snapshot)])
-    notifyProc.command = args
-    notifyProc.running = true
+  onBarChanged: injectPanel()
+  onSettingsChanged: injectPanel()
+  onSnapshotChanged: injectPanel()
+
+  Loader {
+    id: panelLoader
+    active: true
+    source: Qt.resolvedUrl("Panel.qml")
+    visible: false
+    onLoaded: {
+      root.injectPanel()
+      Qt.callLater(root.injectPanel)
+    }
   }
 
   Process {
@@ -61,10 +98,6 @@ BarWidget {
     }
   }
 
-  Process {
-    id: notifyProc
-  }
-
   Timer {
     interval: 15 * 60 * 1000
     running: true
@@ -79,16 +112,27 @@ BarWidget {
     onTriggered: root.startFetch()
   }
 
+  ShellIpc {
+    target: "james.sf-weather"
+
+    function open(): void { root.open() }
+    function close(): void { root.close() }
+    function show(): void { root.open() }
+    function hide(): void { root.close() }
+    function toggle(): void { root.togglePanel() }
+    function refresh(): void { root.refresh() }
+  }
+
   WidgetButton {
     id: button
     anchors.fill: parent
     bar: root.bar
     text: root.label
-    tooltipText: root.detail + " Middle-click to refresh."
+    tooltipText: root.detail + " Left-click for the hourly forecast. Middle-click to refresh."
     dimmed: root.snapshot === null
     onPressed: function(mouseButton) {
       if (mouseButton === Qt.MiddleButton) root.refresh()
-      else if (mouseButton === Qt.LeftButton) root.notify()
+      else if (mouseButton === Qt.LeftButton) root.togglePanel()
     }
   }
 }

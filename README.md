@@ -12,10 +12,9 @@ settings, no options form, and no multi-day panel.
   for example ` 54°`. A vertical bar stacks the glyph above the temperature.
 - Hover for a one-line summary: condition, temperature, feels-like, wind,
   humidity, and today's high/low.
-- Left-click sends a desktop notification with that summary, then the next
-  12 hours of temperature and precipitation. Omarchy's toast shows two body
-  lines until you hover or expand the card, and at most eight, so later
-  hours may be clipped in the popup.
+- Left-click opens a small popup under the widget with that summary and a
+  12-hour table of temperature and precipitation. Click the widget again,
+  press Escape, or click outside to close it.
 - Middle-click refreshes immediately.
 
 The location is hardcoded to 37.7898, -122.3942. Units are °F and mph. The
