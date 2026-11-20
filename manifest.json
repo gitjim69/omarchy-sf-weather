@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "james.sf-weather",
+  "name": "SF Weather",
+  "version": "0.1.0",
+  "author": "James (gitjim69)",
+  "license": "MIT",
+  "description": "Downtown San Francisco (94105) temperature and conditions in the top bar.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "SF Weather",
+    "description": "Downtown San Francisco (94105) temperature and conditions in the top bar.",
+    "category": "Info",
+    "allowMultiple": false,
+    "defaultSection": "center"
+  }
+}

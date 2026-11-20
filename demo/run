@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+fixture="$root/demo/fixtures/example.json"
+
+python3 -m json.tool "$fixture" >/dev/null
+
+if command -v node >/dev/null 2>&1; then
+  node -e '
+    const fs = require("fs")
+    const Model = require(process.argv[1])
+    const raw = fs.readFileSync(process.argv[2], "utf8")
+    const snapshot = Model.parseForecast(raw)
+    if (!snapshot) {
+      console.error("Demo fixture did not parse as an Open-Meteo forecast")
+      process.exit(1)
+    }
+    console.log(Model.barLabel(snapshot, false))
+    console.log(Model.detailLine(snapshot))
+  ' "$root/Model.js" "$fixture"
+fi
+
+printf "Demo fixture is valid: %s\n" "$fixture"
