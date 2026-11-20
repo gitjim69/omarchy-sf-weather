@@ -100,7 +100,8 @@ test("upcomingHourly crosses midnight when the evening is late", () => {
 test("heroLine and metaLine split the header from the muted details", () => {
   const snapshot = Model.parseForecast(JSON.stringify(fixture))
   assert.equal(Model.heroLine(snapshot), snapshot.icon + "  49°  Overcast")
-  assert.equal(Model.metaLine(snapshot), "feels 46°, wind 7 mph, humidity 91%, high 55° / low 45°")
+  assert.equal(Model.metaLine(snapshot), "feels 46° · wind 7 mph · 91%")
+  assert.equal(Model.rangeLine(snapshot), "H 55° / L 45°")
   assert.equal(Model.heroLine(null), "No weather data yet")
   assert.match(Model.metaLine(null), /refresh/)
 })

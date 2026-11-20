@@ -23,15 +23,38 @@ Panel {
   readonly property var hourlyRows: Model.hourlyTableRows(snapshot, asOf)
   readonly property string heroText: Model.heroLine(snapshot)
   readonly property string metaText: Model.metaLine(snapshot)
+  readonly property string rangeText: Model.rangeLine(snapshot)
   readonly property string iconText: snapshot && snapshot.icon ? snapshot.icon : ""
   readonly property string tempText: snapshot && snapshot.temp ? snapshot.temp + "°" : "—"
   readonly property string conditionText: snapshot && snapshot.condition ? snapshot.condition : (snapshot ? "" : "No weather data yet")
 
-  readonly property int hourColWidth: Style.space(56)
-  readonly property int tempColWidth: Style.space(48)
-  readonly property int rainColWidth: Style.space(60)
-  readonly property int inchColWidth: Style.space(60)
-  readonly property int tableWidth: hourColWidth + tempColWidth + rainColWidth + inchColWidth + Style.space(16) * 3
+  // contentWidth on KeyboardPanel is the full card width, including padding
+  // and border. fittedContentWidth() does not add those insets (height does),
+  // so the inner table must be padded out or it will overflow the right edge.
+  readonly property int horizontalContentInset: panel.padding * 2
+    + Border.left(panel.borderSpec) + Border.right(panel.borderSpec)
+  readonly property int columnGap: Style.space(16)
+
+  FontMetrics {
+    id: bodyMetrics
+    font.family: root.contentFontFamily
+    font.pixelSize: Style.font.body
+  }
+  FontMetrics {
+    id: captionMetrics
+    font.family: root.contentFontFamily
+    font.pixelSize: Style.font.caption
+  }
+
+  function textWidth(metrics, value) {
+    return Math.ceil(metrics.advanceWidth(String(value || "")))
+  }
+
+  readonly property int hourColWidth: Math.max(textWidth(captionMetrics, "Hour"), textWidth(bodyMetrics, "12 PM")) + Style.space(4)
+  readonly property int tempColWidth: Math.max(textWidth(captionMetrics, "Temp"), textWidth(bodyMetrics, "100°"))
+  readonly property int rainColWidth: Math.max(textWidth(captionMetrics, "Rain %"), textWidth(bodyMetrics, "100%"))
+  readonly property int inchColWidth: Math.max(textWidth(captionMetrics, "Inches"), textWidth(bodyMetrics, "10.00\""))
+  readonly property int tableWidth: hourColWidth + tempColWidth + rainColWidth + inchColWidth + columnGap * 3
 
   function open() {
     asOf = new Date()
@@ -72,7 +95,7 @@ Panel {
     open: root.opened
     centerOnBar: false
     focusTarget: panel.loadedContent
-    contentWidth: panel.fittedContentWidth(Math.max(Style.space(280), tableWidth))
+    contentWidth: panel.fittedContentWidth(root.tableWidth + root.horizontalContentInset)
     contentHeight: panel.fittedContentHeight(panel.loadedContentHeight)
 
     content: PanelKeyCatcher {
@@ -84,7 +107,7 @@ Panel {
 
       Column {
         id: body
-        width: Math.max(Style.space(280), root.tableWidth)
+        width: root.tableWidth
         spacing: Style.space(10)
 
         Row {
@@ -120,13 +143,28 @@ Panel {
           }
         }
 
-        Text {
+        Column {
           width: parent.width
-          text: root.metaText
-          color: root.mutedForeground
-          font.family: root.contentFontFamily
-          font.pixelSize: Style.font.bodySmall
-          wrapMode: Text.Wrap
+          spacing: Style.space(2)
+
+          Text {
+            width: parent.width
+            text: root.metaText
+            color: root.mutedForeground
+            font.family: root.contentFontFamily
+            font.pixelSize: Style.font.bodySmall
+            wrapMode: Text.NoWrap
+          }
+
+          Text {
+            width: parent.width
+            visible: root.rangeText !== ""
+            text: root.rangeText
+            color: root.mutedForeground
+            font.family: root.contentFontFamily
+            font.pixelSize: Style.font.bodySmall
+            wrapMode: Text.NoWrap
+          }
         }
 
         Column {

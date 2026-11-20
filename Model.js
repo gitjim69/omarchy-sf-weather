@@ -210,19 +210,21 @@ function heroLine(snapshot) {
   return parts.join("  ")
 }
 
+function rangeLine(snapshot) {
+  if (!snapshot || !snapshot.temp) return ""
+  var range = []
+  if (snapshot.high) range.push("H " + snapshot.high + "°")
+  if (snapshot.low) range.push("L " + snapshot.low + "°")
+  return range.join(" / ")
+}
+
 function metaLine(snapshot) {
   if (!snapshot || !snapshot.temp) return "Middle-click the widget to refresh."
   var parts = []
   if (snapshot.feels) parts.push("feels " + snapshot.feels + "°")
   if (snapshot.wind) parts.push("wind " + snapshot.wind + " mph")
-  if (snapshot.humidity) parts.push("humidity " + snapshot.humidity + "%")
-  if (snapshot.high || snapshot.low) {
-    var range = []
-    if (snapshot.high) range.push("high " + snapshot.high + "°")
-    if (snapshot.low) range.push("low " + snapshot.low + "°")
-    parts.push(range.join(" / "))
-  }
-  return parts.join(", ")
+  if (snapshot.humidity) parts.push(snapshot.humidity + "%")
+  return parts.join(" · ")
 }
 
 function hourlyTableRows(snapshot, now) {
@@ -261,6 +263,7 @@ if (typeof module !== "undefined") {
     barLabel: barLabel,
     detailLine: detailLine,
     heroLine: heroLine,
+    rangeLine: rangeLine,
     metaLine: metaLine,
     hourlyTableRows: hourlyTableRows
   }
