@@ -39,7 +39,7 @@ BarWidget {
     var glyph = snapshot && snapshot.icon ? snapshot.icon : ""
     var args = ["omarchy-notification-send", "--app-name", "SF Weather"]
     if (glyph) args = args.concat(["-g", glyph])
-    args = args.concat(["SF Weather", detail])
+    args = args.concat(["SF Weather", Model.notificationBody(snapshot)])
     notifyProc.command = args
     notifyProc.running = true
   }
