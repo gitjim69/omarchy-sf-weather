@@ -134,7 +134,7 @@ BarWidget {
     anchors.fill: parent
     bar: root.bar
     text: root.label
-    tooltipText: root.detail + " Left-click for the hourly forecast. Middle-click to refresh."
+    tooltipText: root.detail
     dimmed: root.snapshot === null
     onPressed: function(mouseButton) {
       if (mouseButton === Qt.MiddleButton) root.refresh()
