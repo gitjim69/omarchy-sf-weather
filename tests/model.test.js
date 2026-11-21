@@ -119,3 +119,12 @@ test("hourlyTableRows is a 12-row aligned table starting at the upcoming hour", 
   assert.equal(late[1].hour, "12 AM")
   assert.equal(late[11].hour, "10 AM")
 })
+
+test("retryDelayMs: quick retries, then backoff only while there is no data", () => {
+  assert.equal(Model.retryDelayMs(0, false), 2500)
+  assert.equal(Model.retryDelayMs(2, true), 2500)
+  assert.equal(Model.retryDelayMs(3, true), 0)
+  assert.equal(Model.retryDelayMs(3, false), 30000)
+  assert.equal(Model.retryDelayMs(4, false), 60000)
+  assert.equal(Model.retryDelayMs(20, false), 300000)
+})

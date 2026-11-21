@@ -60,9 +60,14 @@ BarWidget {
     fetchProc.running = true
   }
 
+  // Three quick retries, then, only while there is no data yet, keep
+  // backing off (30s, 60s, 2m, 4m, capped at 5m) instead of waiting for the
+  // 15-minute tick. Covers boot/resume before the network is up.
   function scheduleRetry() {
-    if (fetchRetries >= 3) return
+    var delay = Model.retryDelayMs(fetchRetries, root.snapshot !== null)
+    if (delay <= 0) return
     fetchRetries++
+    retryTimer.interval = delay
     retryTimer.restart()
   }
 
@@ -109,6 +114,7 @@ BarWidget {
   Timer {
     id: retryTimer
     interval: 2500
+    repeat: false
     onTriggered: root.startFetch()
   }
 

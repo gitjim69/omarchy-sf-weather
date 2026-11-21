@@ -26,7 +26,7 @@ Panel {
   readonly property string rangeText: Model.rangeLine(snapshot)
   readonly property string iconText: snapshot && snapshot.icon ? snapshot.icon : ""
   readonly property string tempText: snapshot && snapshot.temp ? snapshot.temp + "°" : "—"
-  readonly property string conditionText: snapshot && snapshot.condition ? snapshot.condition : (snapshot ? "" : "No weather data yet")
+  readonly property string conditionText: snapshot && snapshot.condition ? snapshot.condition : (snapshot ? "" : "No data yet")
 
   // contentWidth on KeyboardPanel is the full card width, including padding
   // and border. fittedContentWidth() does not add those insets (height does),
@@ -134,7 +134,10 @@ Panel {
           }
 
           Text {
+            id: conditionLabel
             text: root.conditionText
+            width: Math.max(0, heroRow.width - x)
+            elide: Text.ElideRight
             color: root.contentForeground
             font.family: root.contentFontFamily
             font.pixelSize: Style.font.title
@@ -153,7 +156,7 @@ Panel {
             color: root.mutedForeground
             font.family: root.contentFontFamily
             font.pixelSize: Style.font.bodySmall
-            wrapMode: Text.NoWrap
+            wrapMode: Text.WordWrap
           }
 
           Text {

@@ -2,6 +2,13 @@
 var LATITUDE = 37.7898
 var LONGITUDE = -122.3942
 var USER_AGENT = "james-sf-weather/0.1"
+
+// Retry delay in ms for the next attempt, or 0 to stop retrying.
+function retryDelayMs(attempt, hasData) {
+  if (attempt < 3) return 2500
+  if (hasData) return 0
+  return Math.min(300000, 30000 * Math.pow(2, attempt - 3))
+}
 var FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
   + "?latitude=" + LATITUDE
   + "&longitude=" + LONGITUDE
@@ -219,7 +226,7 @@ function rangeLine(snapshot) {
 }
 
 function metaLine(snapshot) {
-  if (!snapshot || !snapshot.temp) return "Middle-click the widget to refresh."
+  if (!snapshot || !snapshot.temp) return "Retrying. Middle-click to refresh now."
   var parts = []
   if (snapshot.feels) parts.push("feels " + snapshot.feels + "°")
   if (snapshot.wind) parts.push("wind " + snapshot.wind + " mph")
@@ -243,6 +250,7 @@ function hourlyTableRows(snapshot, now) {
 
 if (typeof module !== "undefined") {
   module.exports = {
+    retryDelayMs: retryDelayMs,
     LATITUDE: LATITUDE,
     LONGITUDE: LONGITUDE,
     USER_AGENT: USER_AGENT,

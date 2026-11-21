@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "james.sf-weather",
   "name": "SF Weather",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": "James (gitjim69)",
   "license": "MIT",
   "description": "Downtown San Francisco (94105) temperature and conditions in the top bar.",
